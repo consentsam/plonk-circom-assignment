@@ -1,0 +1,36 @@
+name: Test
+
+on:
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+      
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 16.x
+          registry-url: https://registry.npmjs.org
+      
+      - name: Setup | Rust
+        uses: ATiltedTree/setup-rust@v1
+        with:
+          rust-version: stable
+
+      - name: Install circom
+        run: |
+          git clone https://github.com/iden3/circom.git
+          cd circom/
+          cargo build --release
+          cargo install --path circom
+
+      - name: Install SnarkJS
+        run: npm install -g snarkjs
+
+      - name: Run test
+        run: python3 test.py
